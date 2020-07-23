@@ -3,7 +3,7 @@ import json
 import argparse
 
 import termical_module
-import event_module
+import termical_event
 import termical_functions
 import termical_exceptions
 
@@ -14,16 +14,16 @@ subparsers = parser.add_subparsers()
 # Subcommands
 
 parser_display = subparsers.add_parser('display')
-parser_display.add_argument('startdate', default='today', type=int, nargs='*')
-parser_display.add_argument('-e', '--enddate', nargs='*', type=int)
+parser_display.add_argument('-s', '--startdate', default=None, type=int, nargs='*')
+parser_display.add_argument('-e', '--enddate', default=None, nargs='*', type=int)
 display_long_help = 'display long version of events - all information'
 parser_display.add_argument('-l', '--long', action='store_true',
                             help=display_long_help)
 parser_display.set_defaults(action='display')
 
 parser_schedule = subparsers.add_parser('schedule')
-parser_schedule.add_argument('event')
-parser_schedule.add_argument('startdate', nargs='*', type=int)
+parser_schedule.add_argument('event', nargs='*')
+parser_schedule.add_argument('-s', '--startdate', default=None, nargs='*', type=int)
 parser_schedule.add_argument('-e', '--enddate', nargs='*', type=int)
 schedule_note_help = 'add a note to an event'
 parser_schedule.add_argument('-n', '--note', nargs='*', help=schedule_note_help)
@@ -33,8 +33,8 @@ parser_schedule.add_argument('-l', '--location', nargs='*',
 parser_schedule.set_defaults(action='schedule')
 
 parser_remove = subparsers.add_parser('remove')
-parser_remove.add_argument('event')
-parser_remove.add_argument('date', nargs='*', type=int)
+parser_remove.add_argument('event', nargs='*')
+parser_remove.add_argument('-s', '--startdate', nargs='*', type=int)
 parser_remove.add_argument('-e', '--enddate', nargs='*', type=int)
 parser_remove.set_defaults(action='remove')
 
@@ -235,9 +235,9 @@ elif args.action == 'schedule':
 
 elif args.action == 'remove':
     event = args.event
-    date = args.date
+    start_date = args.startdate
     end_date = args.enddate
-    remove = termical_functions.remove(event, date, end_date)
+    remove = termical_functions.remove(event, start_date, end_date)
     for item in remove:
         print(item)
 

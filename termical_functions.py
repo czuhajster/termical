@@ -4,12 +4,12 @@ import json
 import termical_event
 
 
-def display(start_date: list = 'today', end_date: list = None,
+def display(start_date: list = None, end_date: list = None,
             long: bool = False) -> dict:
     '''Display events for specified date(s).'''
-    if start_date == 'today':
+    if start_date == None:
         display_start_date = datetime.date.today()
-    elif start_date != 'today':
+    elif start_date != None:
         display_start_date = datetime.date(start_date[0], start_date[1], start_date[2])
     display_start_date = display_start_date.isoformat()
     if end_date:
@@ -41,20 +41,31 @@ def display(start_date: list = 'today', end_date: list = None,
             display_dict[date] = display_date_schedule
     return display_dict
 
-def schedule(event: str, start_date: list, end_date: list = None, location: list
+def schedule(title: str, start_date: list, end_date: list = None, location: list
              = '', note: list = '') -> str:
     '''Schedule an event.'''
-    schedule_date = datetime.date(start_date[0], start_date[1], start_date[2])
+    if start_date == None:
+        schedule_date = datetime.date.today()
+    elif start_date != None:
+        schedule_date = datetime.date(start_date[0], start_date[1], start_date[2])
     schedule_date = schedule_date.isoformat()
     if end_date:
         schedule_end_date = datetime.date(end_date[0], end_date[1], end_date[2])
-        schedule_end_date = schedule_end_date.isoformat()
+    elif not end_date:
+        schedule_end_date = datetime.date.today()
+    schedule_end_date = schedule_end_date.isoformat()
 
     filename = 'termical_data.json'
     with open(filename) as f:
         import_dates = json.load(f)
 
-    event = event_module.Event(title=event, start_date=schedule_date,
+    if type(title) == list:
+        separator = ' '
+        title = separator.join(title)
+    if type(note) == list:
+        separator = ' '
+        note = separator.join(note)
+    event = termical_event.Event(title=title, start_date=schedule_date,
                                end_date=schedule_end_date, location=location,
                                note=note)
     import_dates_list = []
@@ -62,21 +73,13 @@ def schedule(event: str, start_date: list, end_date: list = None, location: list
         import_dates_list.append(date)
 
     schedule_start = import_dates_list.index(schedule_date)
-    if schedule_end_date:
-        schedule_end = import_dates_list.index(schedule_end_date) + 1
-        schedule_dates = import_dates_list[schedule_start:schedule_end]
-    elif not schedule_end_date:
-        schedule_dates = import_dates_list[schedule_start]
+    schedule_end = import_dates_list.index(schedule_end_date) + 1
+    schedule_dates = import_dates_list[schedule_start:schedule_end]
     
     for date in schedule_dates:
         import_dates[date][event.title] = {}
-        import_dates[date][event.title]['title'] = event.title
-        import_dates[date][event.title]['start_date'] = event.start_date
-        import_dates[date][event.title]['end_date'] = event.end_date
-        if event.location:
-            import_dates[date][event.title]['location'] = event.location
-        if event.note:
-            import_dates[date][event.title]['note'] = event.note
+        for attribute in event:
+            import_dates[date][event.title][attribute[0]] = attribute[1]
 
     with open(filename, 'w') as f:
         json.dump(import_dates, f, indent=4)
@@ -85,7 +88,7 @@ def schedule(event: str, start_date: list, end_date: list = None, location: list
     message += f" {event.end_date}."
     return message
 
-def remove(event: str, date: list, end_date: list = None) -> list:
+def remove(title: str, date: list, end_date: list = None) -> list:
     '''Remove an event.'''
     remove_date = datetime.date(date[0], date[1], date[2])
     remove_end_date = datetime.date(end_date[0], end_date[1], end_date[2])
@@ -102,17 +105,23 @@ def remove(event: str, date: list, end_date: list = None) -> list:
     shortcut_end = import_dates_list.index(remove_end_date) + 1
     shortcut = import_dates_list[shortcut_start:shortcut_end]
 
+    if type(title) == str:
+        pass
+    elif type(title) == list:
+        separator = ' '
+        title = separator.join(title)
+
     return_messages = []
     for date in shortcut:
         try:
-            del import_dates[date][event]
+            del import_dates[date][title]
         except KeyError:
-            error_message = f"Error, there is no such event '{event}' on {date}"
+            error_message = f"Error, there is no such event '{title}' on {date}"
             return_messages.append(error_message)
         else:
             with open(filename, 'w') as f:
                 json.dump(import_dates, f, indent=4)
-            message = f"{event} on {date} has been removed."
+            message = f"{title} on {date} has been removed."
             return_messages.append(message)
     return return_messages
 
@@ -199,8 +208,3 @@ def move(event: str, source_start_date: list = None, source_end_date: list = Non
     message += f" {move_target_date}"
     return_messages.append(message)
     return return_messages
-
-print(display.__annotations__)
-print(schedule.__annotations__)
-print(remove.__annotations__)
-print(move.__annotations__)
