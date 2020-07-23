@@ -33,6 +33,6 @@ export_dates = {}
 for date in dates:
     export_dates[date.isoformat()] = {}
 
-filename = 'termical_data.json'
+filename = '/Users/arek/.termical/termical_data.json'
 with open(filename, 'w') as f:
     json.dump(export_dates, f, indent=4)

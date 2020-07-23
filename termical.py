@@ -40,7 +40,8 @@ parser_remove.set_defaults(action='remove')
 
 parser_move = subparsers.add_parser('move')
 parser_move.add_argument('event')
-parser_move.add_argument('sourcedate', nargs='*', type=int)
+parser_move.add_argument('-s', '--sourcedate', nargs='*', type=int)
+parser_move.add_argument('-e', '--source-end-date', nargs='*', type=int)
 parser_move.add_argument('-t', '--target_date', nargs='*', type=int)
 move_note_help = "change event's note in the go"
 parser_move.add_argument('-n', '--note', nargs='*', help=move_note_help)
@@ -60,14 +61,6 @@ parser.add_argument('-v', '--verbose', help=verbose_help_message,
 args = parser.parse_args()
 
 print(args)
-
-filename = 'termical_data.json'
-with open(filename) as f:
-    import_dates = json.load(f)
-
-dates = {}
-for date in import_dates:
-    dates[datetime.date.fromisoformat(date)] = {}
 
 
 # Logic
@@ -216,9 +209,9 @@ elif args.action == 'display':
             for event in schedule.values():
                 print(f"\t{event['title']}")
                 print(f"\t\ttitle: {event['title']}")
-                print(f"\t\tstart date: {event['start_date']}")
-                if event['end_date']:
-                    print(f"\t\tend date: {event['end_date']}")
+                print(f"\t\tstart date: {event['start date']}")
+                if event['end date']:
+                    print(f"\t\tend date: {event['end date']}")
                 if 'location' in event.keys():
                     print(f"\t\tlocation: {event['location']}")
                 if 'note' in event.keys():
@@ -243,11 +236,15 @@ elif args.action == 'remove':
 
 elif args.action == 'move':
     event = args.event
-    source_date = args.sourcedate
+    source_start_date = args.sourcedate
+    source_end_date = args.source_end_date
     target_date = args.target_date
     location = args.location
     note = args.note
-    move = termical_functions.move(event, source_date, target_date, location,
-                                   note)
+    move = termical_functions.move(event, source_start_date=source_start_date,
+                                   source_end_date=source_end_date,
+                                   target_start_date=target_date,
+                                   location=location,
+                                   note=note)
     for item in move:
         print(item)

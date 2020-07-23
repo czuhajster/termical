@@ -4,15 +4,26 @@ class Event():
     '''Representation of a single calendar event.'''
     
 
-    def __init__(self, title, start_date, end_date=None, location='', note=''):
+    def __init__(self, title, start_date, start_time=None, end_date=None,
+                 end_time=None, location='', note=''):
         '''Initialize attributes.'''
         self.instance_variables = {}
         self.title = title
         self.instance_variables['title'] = self.title
         self.start_date = start_date
-        self.instance_variables['start date'] = self.start_date
+        if start_time:
+            self.start_time = start_time
+            self.start_date_and_time = self.start_date + ': ' + self.start_time
+            self.instance_variables['start date'] = self.start_date_and_time
+        elif not start_time:
+            self.instance_variables['start date'] = self.start_date
         self.end_date = end_date
-        self.instance_variables['end date'] = self.end_date
+        if end_time:
+            self.end_time = end_time
+            self.end_date_and_time = self.end_date + ': ' + self.end_time
+            self.instance_variables['end date'] = self.end_date_and_time
+        elif not end_time:
+            self.instance_variables['end date'] = self.end_date
         self.location = location
         if location:
             self.instance_variables['location'] = self.location
@@ -44,8 +55,11 @@ class Event():
         '''Create an iterator.'''
         return self
 
-    def __next__(self):
-        '''Access one element at a time.'''
+    def __next__(self) -> list:
+        '''Access one attribute at a time.'''
+
+        '''It returns list that cotains name of the attribute and
+        its value.'''
         self.return_list = []
         if self.count == self.index:
             self.count = 0

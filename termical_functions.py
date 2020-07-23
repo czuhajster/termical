@@ -16,7 +16,7 @@ def display(start_date: list = None, end_date: list = None,
         display_end_date = datetime.date(end_date[0], end_date[1], end_date[2])
         display_end_date = display_end_date.isoformat()
 
-    filename = 'termical_data.json'
+    filename = '/Users/arek/.termical/termical_data.json'
     with open(filename) as f:
         import_dates = json.load(f)
 
@@ -44,30 +44,52 @@ def display(start_date: list = None, end_date: list = None,
 def schedule(title: str, start_date: list, end_date: list = None, location: list
              = '', note: list = '') -> str:
     '''Schedule an event.'''
+
+    # Convert dates from function call into date objects and iso strings
+    # eventually.
     if start_date == None:
         schedule_date = datetime.date.today()
-    elif start_date != None:
-        schedule_date = datetime.date(start_date[0], start_date[1], start_date[2])
+    elif start_date:
+        schedule_date = datetime.date(start_date[0], start_date[1],
+                                      start_date[2])
     schedule_date = schedule_date.isoformat()
-    if end_date:
-        schedule_end_date = datetime.date(end_date[0], end_date[1], end_date[2])
-    elif not end_date:
+    if end_date == None:
         schedule_end_date = datetime.date.today()
+    elif end_date:
+        schedule_end_date = datetime.date(end_date[0], end_date[1], end_date[2])
     schedule_end_date = schedule_end_date.isoformat()
 
-    filename = 'termical_data.json'
+    # If present, convert times from function call into time objects and iso
+    # strings eventually.
+    if len(start_date) == 5:
+        schedule_time = datetime.time(start_date[3], start_date[4])
+        schedule_time = schedule_time.isoformat(timespec='minutes')
+    if len(end_date) == 5:
+        schedule_end_time = datetime.time(end_date[3], end_date[4])
+        schedule_end_time = schedule_end_time.isoformat(timespec='minutes')
+
+    filename = '/Users/arek/.termical/termical_data.json'
     with open(filename) as f:
         import_dates = json.load(f)
 
+    # Convert list arguments into strings.
     if type(title) == list:
         separator = ' '
         title = separator.join(title)
     if type(note) == list:
         separator = ' '
         note = separator.join(note)
-    event = termical_event.Event(title=title, start_date=schedule_date,
-                               end_date=schedule_end_date, location=location,
-                               note=note)
+
+    if len(start_date) == 5:
+        event = termical_event.Event(title=title, start_date=schedule_date,
+                                   start_time=schedule_time,
+                                     end_date=schedule_end_date,
+                                     end_time=schedule_end_time, location=location,
+                                   note=note)
+    else:
+        event = termical_event.Event(title=title, start_date=schedule_date,
+                                     end_date=schedule_end_date,
+                                     location=location, note=note)
     import_dates_list = []
     for date in import_dates:
         import_dates_list.append(date)
@@ -76,6 +98,7 @@ def schedule(title: str, start_date: list, end_date: list = None, location: list
     schedule_end = import_dates_list.index(schedule_end_date) + 1
     schedule_dates = import_dates_list[schedule_start:schedule_end]
     
+    # Schedule event.
     for date in schedule_dates:
         import_dates[date][event.title] = {}
         for attribute in event:
@@ -94,7 +117,7 @@ def remove(title: str, date: list, end_date: list = None) -> list:
     remove_end_date = datetime.date(end_date[0], end_date[1], end_date[2])
     remove_date = remove_date.isoformat()
     remove_end_date = remove_end_date.isoformat()
-    filename = 'termical_data.json'
+    filename = '/Users/arek/.termical/termical_data.json'
     with open(filename) as f:
         import_dates = json.load(f)
     import_dates_list = []
@@ -146,7 +169,7 @@ def move(event: str, source_start_date: list = None, source_end_date: list = Non
                                              target_end_date[1],
                                              target_end_date[2])
         move_target_end_date = move_target_end_date.isoformat()
-    filename = 'termical_data.json'
+    filename = '/Users/arek/.termical/termical_data.json'
     with open(filename) as f:
         import_dates = json.load(f)
 
@@ -204,7 +227,7 @@ def move(event: str, source_start_date: list = None, source_end_date: list = Non
 
     with open(filename, 'w') as f:
         json.dump(import_dates, f, indent=4)
-    message = f"{event} has been moved from {move_source_date} to"
-    message += f" {move_target_date}"
+    message = f"{event} has been moved from {move_source_start_date} to"
+    message += f" {move_target_start_date}"
     return_messages.append(message)
     return return_messages
