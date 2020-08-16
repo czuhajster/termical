@@ -47,26 +47,15 @@ def schedule(title: str, start_date: list, end_date: list = None, location: list
 
     # Convert dates from function call into date objects and iso strings
     # eventually.
-    if start_date == None:
+    if start_date:
+        schedule_date = datetime.datetime(*start_date)
+    elif not start_date:
         schedule_date = datetime.date.today()
-    elif start_date:
-        schedule_date = datetime.date(start_date[0], start_date[1],
-                                      start_date[2])
     schedule_date = schedule_date.isoformat()
-    if end_date == None:
-        schedule_end_date = datetime.date.today()
-    elif end_date:
-        schedule_end_date = datetime.date(end_date[0], end_date[1], end_date[2])
-    schedule_end_date = schedule_end_date.isoformat()
-
-    # If present, convert times from function call into time objects and iso
-    # strings eventually.
-    if len(start_date) == 5:
-        schedule_time = datetime.time(start_date[3], start_date[4])
-        schedule_time = schedule_time.isoformat(timespec='minutes')
-    if len(end_date) == 5:
-        schedule_end_time = datetime.time(end_date[3], end_date[4])
-        schedule_end_time = schedule_end_time.isoformat(timespec='minutes')
+    if end_date:
+        schedule_end_date = datetime.datetime(*end_date)
+    elif not end_date:
+        schedule_end_date = schedule_date
 
     filename = '/Users/arek/.termical/termical_data.json'
     with open(filename) as f:
@@ -80,22 +69,19 @@ def schedule(title: str, start_date: list, end_date: list = None, location: list
         separator = ' '
         note = separator.join(note)
 
-    if len(start_date) == 5:
-        event = termical_event.Event(title=title, start_date=schedule_date,
-                                   start_time=schedule_time,
-                                     end_date=schedule_end_date,
-                                     end_time=schedule_end_time, location=location,
-                                   note=note)
-    else:
-        event = termical_event.Event(title=title, start_date=schedule_date,
-                                     end_date=schedule_end_date,
-                                     location=location, note=note)
+    event = termical_event.Event(title=title, start_date=schedule_date,
+                                 end_date=schedule_end_date,
+                                 location=location, note=note)
     import_dates_list = []
     for date in import_dates:
         import_dates_list.append(date)
 
-    schedule_start = import_dates_list.index(schedule_date)
-    schedule_end = import_dates_list.index(schedule_end_date) + 1
+    iter_start = schedule_date.split('T')
+    iter_start = iter_start[0]
+    iter_end = schedule_end_date.split('T')
+    iter_end = iter_end[0]
+    schedule_start = import_dates_list.index(iter_start)
+    schedule_end = import_dates_list.index(iter_end) + 1
     schedule_dates = import_dates_list[schedule_start:schedule_end]
     
     # Schedule event.

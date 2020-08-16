@@ -4,32 +4,23 @@ class Event():
     '''Representation of a single calendar event.'''
     
 
-    def __init__(self, title, start_date, start_time=None, end_date=None,
-                 end_time=None, location='', note=''):
+    def create_id(self):
+        '''Create ID number for an event.'''
+
+    def __init__(self, title, start_date, end_date=None,
+                 location=None, note=None):
         '''Initialize attributes.'''
         self.instance_variables = {}
         self.title = title
         self.instance_variables['title'] = self.title
         self.start_date = start_date
-        if start_time:
-            self.start_time = start_time
-            self.start_date_and_time = self.start_date + ': ' + self.start_time
-            self.instance_variables['start date'] = self.start_date_and_time
-        elif not start_time:
-            self.instance_variables['start date'] = self.start_date
+        self.instance_variables['start_date'] = self.start_date
         self.end_date = end_date
-        if end_time:
-            self.end_time = end_time
-            self.end_date_and_time = self.end_date + ': ' + self.end_time
-            self.instance_variables['end date'] = self.end_date_and_time
-        elif not end_time:
-            self.instance_variables['end date'] = self.end_date
+        self.instance_variables['end_date'] = self.end_date
         self.location = location
-        if location:
-            self.instance_variables['location'] = self.location
+        self.instance_variables['location'] = self.location
         self.note = note
-        if note:
-            self.instance_variables['note'] = self.note
+        self.instance_variables['note'] = self.note
         self.id = ''
         # self.instance_variables.append(self.id)
         self.keys = []
@@ -41,15 +32,36 @@ class Event():
         self.index = len(self.keys)
 
 
+    def __len__(self):
+        '''Return length of an event - number of attributes.'''
+        length_list = []
+        for item in self.instance_variables:
+            length_list.append(item)
+        return len(length_list)
+
     def display_attributes(self, *attributes):
         '''Display specified attribute(s).'''
         for attribute in attributes:
             print(self.attribute)
 
-    def edit_attribute(self, **attributes):
-        '''Edit specified attribute(s).'''
-        for attribute in attributes:
-            self.attribute = attributes[attribute]
+    def __getitem__(self, key):
+        '''Return given attribute.'''
+        if key in self.instance_variables.keys():
+            return self.instance_variables[key]
+        elif key not in self.instance_variables:
+            raise KeyError
+
+    def __setitem__(self, key, value):
+        '''Set given attribute.'''
+        self.instance_variables[key] = value
+        self.key = value
+
+    def __contains__(self, item):
+        '''Membership test.'''
+        if item in self.instance_variables:
+            return 'haha'
+        elif item not in self.instance_variables:
+            return 'nunu'
 
     def __iter__(self):
         '''Create an iterator.'''
