@@ -4,10 +4,9 @@ import datetime
 import json
 import argparse
 
-import termical_module
-import termical_event
-import termical_functions
-import termical_exceptions
+from pycal import event as pycal_event
+from pycal import functions as pycal_funcs
+from pycal import exceptions as pycal_excs
 
 desc = 'Termical - a terminal-based calendar'
 parser = argparse.ArgumentParser(description=desc, prog='termical')
@@ -104,7 +103,7 @@ if args.interactive:
                 specific_end_date = specific_end_date.split()
                 specific_end_date = list(map(int, specific_end_date))
 
-            display = termical_functions.display(specific_start_date,
+            display = pycal_funcs.display(specific_start_date,
                                                  specific_end_date)
             print(display)
         elif action == 's':
@@ -185,7 +184,7 @@ if args.interactive:
             note = input("Enter event's new note [no change]: ")
             
 
-            move = termical_functions.move(title, source_start_date,
+            move = pycal_funcs.move(title, source_start_date,
                                            source_end_date, target_start_date,
                                            target_end_date, location, note)
 
@@ -200,9 +199,9 @@ elif args.action == 'display':
     end_date = args.enddate
     long = args.long
     if end_date:
-        display = termical_functions.display(start_date, end_date, long)
+        display = pycal_funcs.display(start_date, end_date, long)
     elif not end_date:
-        display = termical_functions.display(start_date, long)
+        display = pycal_funcs.display(start_date, long)
     for date, schedule in display.items():
         print(f"\n{date}:")
         if not schedule:
@@ -225,14 +224,14 @@ elif args.action == 'schedule':
     end_date = args.enddate
     location = args.location
     note = args.note
-    schedule = termical_functions.schedule(event, start_date, end_date, location, note)
+    schedule = pycal_funcs.schedule(event, start_date, end_date, location, note)
     print(schedule)
 
 elif args.action == 'remove':
     event = args.event
     start_date = args.startdate
     end_date = args.enddate
-    remove = termical_functions.remove(event, start_date, end_date)
+    remove = pycal_funcs.remove(event, start_date, end_date)
     for item in remove:
         print(item)
 
@@ -243,7 +242,7 @@ elif args.action == 'move':
     target_date = args.target_date
     location = args.location
     note = args.note
-    move = termical_functions.move(event, source_start_date=source_start_date,
+    move = pycal_funcs.move(event, source_start_date=source_start_date,
                                    source_end_date=source_end_date,
                                    target_start_date=target_date,
                                    location=location,
