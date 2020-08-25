@@ -61,7 +61,6 @@ parser.add_argument('-v', '--verbose', help=verbose_help_message,
 
 args = parser.parse_args()
 
-print(args)
 
 
 # Logic
