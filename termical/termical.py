@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/local/bin/python3
 
 import datetime
 import json
@@ -23,8 +23,8 @@ parser_display.add_argument('-l', '--long', action='store_true',
 parser_display.set_defaults(action='display')
 
 parser_schedule = subparsers.add_parser('schedule')
-parser_schedule.add_argument('event', nargs='*')
-parser_schedule.add_argument('-s', '--startdate', default=None, nargs='*', type=int)
+parser_schedule.add_argument('title', help='title of the event')
+parser_schedule.add_argument('startdate', default=None, nargs='*', type=int)
 parser_schedule.add_argument('-e', '--enddate', nargs='*', type=int)
 schedule_note_help = 'add a note to an event'
 parser_schedule.add_argument('-n', '--note', nargs='*', help=schedule_note_help)
@@ -61,7 +61,7 @@ parser.add_argument('-v', '--verbose', help=verbose_help_message,
 
 args = parser.parse_args()
 
-
+calendar = pycal_event.Calendar('main')
 
 # Logic
 
@@ -218,13 +218,17 @@ elif args.action == 'display':
                     print(f"\t\tnote: {event['note']}")
 
 elif args.action == 'schedule':
-    event = args.event
+    name = args.name
     start_date = args.startdate
     end_date = args.enddate
     location = args.location
     note = args.note
-    schedule = pycal_funcs.schedule(event, start_date, end_date, location, note)
-    print(schedule)
+    event = pycal_event.Event(calendar, name, start_date, end_date, location,
+                              note)
+    for event in calendar:
+        print(event)
+    # schedule = pycal_funcs.schedule(event)
+    # print(schedule)
 
 elif args.action == 'remove':
     event = args.event
